@@ -1,0 +1,30 @@
+import numpy as np
+def my_logit(X,y):
+    '''
+    X:数据类型为2-D array,是N个特征的M个观测构成的M*N阶矩阵
+    y:M-D array，时M个观测对应类别的0、1矩阵，规模为M*1
+    返回值是二元元组，第一个元素是参数列表，第二个为代价函数值
+    '''
+    X = np.hstack((np.ones(X.shape[0]).reshape(X.shape[0],1),X))
+    M ,N = X.shape
+    beta = np.ones(N).reshape(N,1)
+    alpha = 0.006
+    for i in range(0,100):
+        #第i次学习时的代价函数
+        cost = 0
+        for j in range(N):
+            cost += y[j]*np.log(1/(1+np.exp(-X[j]@beta))) - (1-y[j])*np.log(np.exp(-X[j]@beta)/(1+np.exp(-X[j]@beta)))
+        grad = np.array([X[:,j].T@(1/(1+np.exp(-(X@beta)))-y) for j in range(N)]).reshape(N,1)
+        beta = beta - alpha*grad
+    return beta,cost
+def my_logit_pred(X,X_train,y_train):
+    '''
+    此函数依赖于my_logit()函数
+    X      : shape为(M,N)的2-D array，是要估计的点取值
+    X_train: shape为(K,N)的2-D array，训练集的输入
+    y_train: shape为(K,1)的2-D array，训练集的类别
+    函数输出是shape为(M,1)的2-D array，是对输入值X的估计
+    '''
+    X = np.hstack((np.ones(X.shape[0]).reshape(X.shape[0],1),X))
+    beta = my_logit(X_train,y_train)[0]
+    return (1/(1+np.exp(-X@beta))>=0.5).astype(int)
