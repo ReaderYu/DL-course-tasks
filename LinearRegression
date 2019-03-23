@@ -1,0 +1,28 @@
+import numpy as np
+def my_linregression(X,y,**kwargs):
+    '''
+    X：数据类型为2-D array,是N个特征的M个观测构成的M*N阶矩阵 
+    Y:各采样点处的取值
+    alpha=：设定学习率，默认为1e-5
+    iteration=:迭代次数，默认10000
+    函数返回一个长为N+1的列表[b0,b1,...,bn],表明回归方程为b0+b1*x1+b2*x2...
+    损失函数定义为sse（总回归误差平方和）
+    '''
+    alpha,iteration = 1e-5,10000
+    if 'alpha' in kwargs.keys():
+        alpha = kwargs['alpha']
+    if 'iteration' in kwargs.keys():
+        iteration = kwargs['iteration']
+
+    X = np.hstack((np.ones(X.shape[0]).reshape(X.shape[0],1),X))
+    M ,N = X.shape
+    beta = np.ones(N).reshape(N,1) #初始解取纯一向量
+    
+    for i in range(0,iteration):
+        grad = 2*(X.T)@(X@beta-y)
+        beta = beta - alpha*grad
+        mse = sum((X@beta-y)**2)    #第i次学习时的均方误差
+        if i in [(iteration//10)*k for k in range(10)]:
+            print(beta.T)
+            print(mse)
+    return [beta,mse]
